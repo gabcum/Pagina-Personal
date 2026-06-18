@@ -1,10 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 
 app = FastAPI()
 
-@app.get("/")
+
 
 #Datos base de un proyecto 
 class proyecto(BaseModel):
@@ -72,6 +72,25 @@ def buscar_proyecto(curso_url: str):
     return {
         "message": "Categoría no encontrada",
         "error": f"El curso '{curso_url}' no existe en la base de datos."
+    }
+
+@app.post("/proyectos/nuevo")
+def agregar_proyecto(nuevo_proyecto: proyecto):
+    
+    #Verificar si existe el proyecto en la base de datos
+    for proy in base_de_datos_proyectos:
+        if proy.id_url == nuevo_proyecto.id_url:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"El proyecto con id_url '{nuevo_proyecto.id_url}' ya está registrado."
+            )
+        else:
+            continue
+    # Si no existe, agregarlo a la base de datos
+    base_de_datos_proyectos.append(nuevo_proyecto)
+    return {
+        "message": "Proyecto agregado exitosamente",
+        "proyecto": nuevo_proyecto
     }
 
     
